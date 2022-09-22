@@ -1,6 +1,5 @@
 package study.datajpa.repository;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional // 데이터의 모든 변경은 트랜잭션 안에서 이뤄져야 한다.
 @SpringBootTest // Spring을 사용해서 injection 받고 해야하기 때문에 이 어노테이션을 작성해준다.
