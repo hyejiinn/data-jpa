@@ -8,7 +8,9 @@ import study.datajpa.entity.Member;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+// @Repository 어노테이션 생략해도 됨 -> 그리고 알아서 Jpa 관련 예외를 Spring 예외로 변환해줌
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 메소드 이름으로 쿼리 생성
@@ -32,7 +34,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
     List<MemberDto> findMemberDto();
 
+    // 파라미터 바인딩
     @Query("select m from Member m where m.username in :names")
     List<Member> findByNames(@Param("names") Collection<String> names);
 
+    // 반환 타입
+    List<Member> findListByUsername(String username); // 컬렉션
+    Member findMemberByUsername(String username); // 단건
+    Optional<Member> findOptionalByUsername(String username); // 단건 Optional
 }

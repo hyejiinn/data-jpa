@@ -77,6 +77,7 @@ class MemberRepositoryTest {
         memberRepository.save(memberA);
         memberRepository.save(memberB);
 
+//        List<Member> result = memberRepository.findByUsername("memberA");
         List<Member> result = memberRepository.findByUsername("memberA");
 
         assertThat(result.get(0)).isEqualTo(memberA);
@@ -136,6 +137,57 @@ class MemberRepositoryTest {
         for (Member member : result) {
             System.out.println("member = " + member);
         }
+    }
+
+    @Test
+    public void returnType() {
+        Member memberA = new Member("memberA", 10);
+        Member memberB = new Member("memberB", 20);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        /** 컬렉션 조회
+         *     select
+         *         member0_.member_id as member_i1_0_,
+         *         member0_.age as age2_0_,
+         *         member0_.team_id as team_id4_0_,
+         *         member0_.username as username3_0_ 
+         *     from
+         *         member member0_ 
+         *     where
+         *         member0_.username=?
+         */
+        List<Member> memberList = memberRepository.findListByUsername("memberA");
+
+        /** 단건 조회
+         *     select
+         *         member0_.member_id as member_i1_0_,
+         *         member0_.age as age2_0_,
+         *         member0_.team_id as team_id4_0_,
+         *         member0_.username as username3_0_
+         *     from
+         *         member member0_
+         *     where
+         *         member0_.username=?
+         */
+        Member findMember = memberRepository.findMemberByUsername("memberA");
+
+        /**
+         * Optional 단건 조회
+         *    select
+         *         member0_.member_id as member_i1_0_,
+         *         member0_.age as age2_0_,
+         *         member0_.team_id as team_id4_0_,
+         *         member0_.username as username3_0_
+         *     from
+         *         member member0_
+         *     where
+         *         member0_.username=?
+         */
+        Member findMemberA = memberRepository.findOptionalByUsername("memberA").get();
+
+
     }
 
 
