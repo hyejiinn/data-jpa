@@ -8,6 +8,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Rollback(value = false)
@@ -44,6 +46,21 @@ class MemberRepositoryTest {
 
         assertThat(findMember1).isEqualTo(member1);
         assertThat(findMember2).isEqualTo(member2);
+    }
+
+    @Test
+    public void findByUsernameAndAgeGreaterThen() {
+        Member memberA = new Member("memberA", 10);
+        Member memberB = new Member("memberA", 20);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<Member> result = memberRepository.findByUsernameAndAgeGreaterThan("memberA", 15);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("memberA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
     }
 
 

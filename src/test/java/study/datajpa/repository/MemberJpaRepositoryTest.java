@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
+@Rollback(value = false)
 @Transactional // 데이터의 모든 변경은 트랜잭션 안에서 이뤄져야 한다.
 @SpringBootTest // Spring을 사용해서 injection 받고 해야하기 때문에 이 어노테이션을 작성해준다.
 class MemberJpaRepositoryTest {
@@ -68,5 +70,20 @@ class MemberJpaRepositoryTest {
         long deletedCount = memberJpaRepository.count();
         assertThat(deletedCount).isEqualTo(0);
 
+    }
+
+    @Test
+    public void findByUsernameAndAgeGreaterThen() {
+        Member memberA = new Member("memberA", 10);
+        Member memberB = new Member("memberA", 20);
+
+        memberJpaRepository.save(memberA);
+        memberJpaRepository.save(memberB);
+
+        List<Member> result = memberJpaRepository.findByUsernameAndAgeGreaterThen("memberA", 15);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("memberA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
     }
 }
