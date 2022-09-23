@@ -88,6 +88,9 @@ class MemberJpaRepositoryTest {
         assertThat(result.size()).isEqualTo(1);
     }
 
+    /**
+     * @Query : 리포지토리 메소드에 쿼리 정의하기
+     */
     @Test
     public void testNamedQuery() {
         Member memberA = new Member("memberA", 10);

@@ -4,11 +4,18 @@ import lombok.*;
 
 import javax.persistence.*;
 
+
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "username", "age"})
+/**
+ * NamedQuery 장점
+ * :애플리케이션 로딩 시점에 먼저 파싱을 통해 쿼리를 한번 돌려보기 때문에
+ * 애플리케이션 로딩 시점에 바로 에러를 찾을 수 있다는 장점!
+ */
 @NamedQuery(
         name = "Member.findByUsername",
         query = "select m from Member m where m.username = :username"

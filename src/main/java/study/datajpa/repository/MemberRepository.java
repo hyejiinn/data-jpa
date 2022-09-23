@@ -16,9 +16,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 2차: NamedQuery가 없을 시 그때 메서드 이름을 기준으로 쿼리를 생성함.
     List<Member> findByUsername(@Param("username") String username);
 
-    /**
-     * NamedQuery 장점
-     * :애플리케이션 로딩 시점에 먼저 파싱을 통해 쿼리를 한번 돌려보기 때문에
-     * 애플리케이션 로딩 시점에 바로 에러를 찾을 수 있다는 장점!
-     */
+    // @Query 사용
+    // 리포지토리 메서드에 쿼리 정의하기
+    // 장점: 애플리케이션 로딩할 때 오류가 발생한다!! -> 엄청난 장점!!!
+    @Query("select m from Member m where m.username = :username and m.age = :age")
+    List<Member> findUser(@Param("username") String username, @Param("age") int age);
+
 }
