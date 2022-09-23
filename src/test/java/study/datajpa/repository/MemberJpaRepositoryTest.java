@@ -73,6 +73,7 @@ class MemberJpaRepositoryTest {
     }
 
     @Test
+    @DisplayName("메소드 이름으로 쿼리 생성 TEST")
     public void findByUsernameAndAgeGreaterThen() {
         Member memberA = new Member("memberA", 10);
         Member memberB = new Member("memberA", 20);
@@ -85,5 +86,18 @@ class MemberJpaRepositoryTest {
         assertThat(result.get(0).getUsername()).isEqualTo("memberA");
         assertThat(result.get(0).getAge()).isEqualTo(20);
         assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void testNamedQuery() {
+        Member memberA = new Member("memberA", 10);
+        Member memberB = new Member("memberB", 20);
+
+        memberJpaRepository.save(memberA);
+        memberJpaRepository.save(memberB);
+
+        List<Member> result = memberJpaRepository.findByUsername("memberA");
+
+        assertThat(result.get(0)).isEqualTo(memberA);
     }
 }
