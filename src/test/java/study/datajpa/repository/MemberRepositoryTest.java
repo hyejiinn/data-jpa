@@ -287,5 +287,32 @@ class MemberRepositoryTest {
         }
     }
 
+    // JPA Hint & Lock
+    @Test
+    public void queryHint() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+//        Member findMember = memberRepository.findById(member1.getId()).get();
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2"); // readOnly 인 경우에는 변경감지 체크를 하지 않기 때문에 update sql 전송하지 않음
+
+        entityManager.flush();
+    }
+
+    @Test
+    public void lock() {
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        entityManager.flush();
+        entityManager.clear();
+
+        List<Member> result = memberRepository.findLockByUsername("member1");
+    }
+
 
 }
