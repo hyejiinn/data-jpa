@@ -14,6 +14,7 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +30,9 @@ class MemberRepositoryTest {
 
     @Autowired
     TeamRepository teamRepository;
+
+    @Autowired
+    EntityManager entityManager;
 
     @Test
     public void testMember() {
@@ -223,6 +227,31 @@ class MemberRepositoryTest {
         assertThat(page.getTotalPages()).isEqualTo(2);  // Slice에서는 제공 x
         assertThat(page.isFirst()).isTrue();
         assertThat(page.hasNext()).isTrue();
+    }
+
+    // 벌크성 수정 쿼리
+    @Test
+    public void bulkUpdate() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+        memberRepository.save(new Member("member6", 15));
+
+        // when
+        // 벌크 연산을 수행한 다음에는 영속성 컨텍스트를 flush 해줘야 한다...!!
+        // 안그러면 만약 같은 트랜잭션안에서 다른 로직이 일어나면 데이터 변경한게 반영이 안되어 있기 때문이다.
+        int resultCount = memberRepository.bulkAgePlus(20);
+//        entityManager.flush(); 근데 스프링 데이터 jpa에서는 @Modifying 어노테이션에서 옵션을 true로 설정해주면 따로 flush 안해도 된다 ㅎㅎ
+//        entityManager.clear();
+
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
+
+
     }
 
 
