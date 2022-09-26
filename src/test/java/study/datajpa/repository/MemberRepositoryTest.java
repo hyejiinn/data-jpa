@@ -250,8 +250,41 @@ class MemberRepositoryTest {
 
         // then
         assertThat(resultCount).isEqualTo(3);
+    }
 
+    // N + 1 문제
+    //
+    @Test
+    public void findMemberLazy() {
+        // given
+        // member1 -> teamA
+        // member2 -> teamB
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
 
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member1", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        // 영속성 컨텍스트 초기화
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<Member> members = memberRepository.findAll();
+//        List<Member> members = memberRepository.findMemberFetchJoin(); // 페치 조인 사용
+        for (Member member : members) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            // Member와 Team은 지연로딩 관계로 이루어져있기 때문에 Member가져올때 Team은 가짜객체 즉 프록시를 의미한다.
+            // 그리고 이제 실제 Team을 사용하는 순간인 getTeam().getName()을 하는 순간이 진짜 사용하는 순간이기 때문에
+            // 이때 영속성 컨텍스트에서 조회를 해오게 된다.
+            // => N + 1 문제 발생 ..!
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName()); // 프록시 초기화
+        }
     }
 
 
