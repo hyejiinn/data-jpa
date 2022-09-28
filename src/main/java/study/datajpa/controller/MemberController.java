@@ -42,6 +42,7 @@ public class MemberController {
     // Web 확장 : 페이징과 정렬
     // 페이지 시작은 0부터 시작한다!!!
     // ex) /members?page=1&size=3&sort=username,desc
+    // 엔티티로 반환하지말고 dto를 반환하라!!!
     @GetMapping("/members")
     public Page<MemberDto> list(@PageableDefault(size = 5, sort = "username") Pageable pageable) {
 //        return memberRepository.findAll(pageable).map(member -> new MemberDto(member.getId(), member.getUsername(), null));
