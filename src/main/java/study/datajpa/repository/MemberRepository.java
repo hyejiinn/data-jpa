@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 // @Repository 어노테이션 생략해도 됨 -> 그리고 알아서 Jpa 관련 예외를 Spring 예외로 변환해줌
-public interface MemberRepository extends JpaRepository<Member, Long> , MemberRepositoryCustom{
+public interface MemberRepository extends JpaRepository<Member, Long> , MemberRepositoryCustom, JpaSpecificationExecutor{
 
     // 메소드 이름으로 쿼리 생성
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);

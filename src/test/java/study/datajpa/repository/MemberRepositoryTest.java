@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -169,29 +171,11 @@ class MemberRepositoryTest {
         List<Member> memberList = memberRepository.findListByUsername("memberA");
 
         /** 단건 조회
-         *     select
-         *         member0_.member_id as member_i1_0_,
-         *         member0_.age as age2_0_,
-         *         member0_.team_id as team_id4_0_,
-         *         member0_.username as username3_0_
-         *     from
-         *         member member0_
-         *     where
-         *         member0_.username=?
          */
         Member findMember = memberRepository.findMemberByUsername("memberA");
 
         /**
          * Optional 단건 조회
-         *    select
-         *         member0_.member_id as member_i1_0_,
-         *         member0_.age as age2_0_,
-         *         member0_.team_id as team_id4_0_,
-         *         member0_.username as username3_0_
-         *     from
-         *         member member0_
-         *     where
-         *         member0_.username=?
          */
         Member findMemberA = memberRepository.findOptionalByUsername("memberA").get();
 
@@ -317,6 +301,34 @@ class MemberRepositoryTest {
     @Test
     public void callCustom() {
         List<Member> memberCustom = memberRepository.findMemberCustom();
+    }
+
+    /**
+     * Specifications
+     * AND, OR 같은 연산자로 조합해서 다양한 검색 조건을 쉽게 생성 가능
+     * 장점: 자바 코드로 작성할 수 있음
+     * 단점: Jpa Criteria 가 너무 복잡함..!!!! (직관적이지 않음)
+     * 사용하지 않는 것을 권장... 사용했다간 어마어마하게 후회할 예정이라고 함ㅋㅋㅋㅋ
+     */
+    @Test
+    public void specBasic() {
+        // given
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        Specification<Member> spec = MemberSpec.username("m1").and(MemberSpec.teamName("teamA"));
+        List<Member> result = memberRepository.findAll(spec);
+
+        Assertions.assertThat(result.size()).isEqualTo(1);
     }
 
 
