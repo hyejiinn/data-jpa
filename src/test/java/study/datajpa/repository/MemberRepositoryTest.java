@@ -5,10 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -309,6 +306,7 @@ class MemberRepositoryTest {
      * 장점: 자바 코드로 작성할 수 있음
      * 단점: Jpa Criteria 가 너무 복잡함..!!!! (직관적이지 않음)
      * 사용하지 않는 것을 권장... 사용했다간 어마어마하게 후회할 예정이라고 함ㅋㅋㅋㅋ
+     * -> QueryDSL을 사용하자
      */
     @Test
     public void specBasic() {
@@ -329,6 +327,48 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findAll(spec);
 
         Assertions.assertThat(result.size()).isEqualTo(1);
+    }
+
+    /**
+     * Query By Example
+     * 장점: 동적 쿼리를 편리하게 처리할 수 있음, 도메인 객체를 그대로 사용
+     * 단점: join이 inner join은 되는데 outer join이 되지 않는다.
+     * -> QueryDSL을 사용하자
+     */
+    @Test
+    public void queryByExample() {
+        // given
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+
+        // when
+        // Probe : 필드에 데이터가 있는 실제 도메인 객체
+        // memberRepository.findByUsername("m1"); 이건 정적일 때만 가능 !
+        Member member = new Member("m1");
+        Team team = new Team("teamA");
+        member.setTeam(team); // 연관관계를 이렇게 세팅해주고 넘겨주면 알아서 inner join 까지는 해줌
+
+        // ExampleMatcher : 특정 필드를 일치시키는 상세한 정보 제공, 재사용 가능
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withIgnorePaths("age");
+
+        // Example : Probe와 ExampleMatcher로 구성, 쿼리를 생성하는데 사용
+        Example<Member> example = Example.of(member, matcher);
+
+        List<Member> result = memberRepository.findAll(example);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");
+
+
     }
 
 
