@@ -422,4 +422,35 @@ class MemberRepositoryTest {
 
     }
 
+    /**
+     * 네이티브 쿼리
+     * -> 가급적 네이티브 쿼리는 사용하지 않는 것이 좋고,
+     * 스프링 JdbcTemplate나 myBatis, jooq 같은 외부 라이브러리를 사용하는게 좋다.
+     */
+    @Test
+    public void nativeQuery() {
+        // given
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        Member result = memberRepository.findByNativeQuery("m1");
+        System.out.println("result = " + result);
+
+        Page<MemberProjection> result2 = memberRepository.findByNativeProjection(PageRequest.of(0, 10));
+        List<MemberProjection> content = result2.getContent();
+        for (MemberProjection memberProjection : content) {
+            System.out.println("memberProjection = " + memberProjection.getUsername());
+            System.out.println("memberProjection = " + memberProjection.getTeamName());
+        }
+    }
+
 }
