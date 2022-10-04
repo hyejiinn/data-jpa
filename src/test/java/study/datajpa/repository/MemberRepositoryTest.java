@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
+import study.datajpa.entity.UsernameOnlyDto;
 
 import javax.persistence.EntityManager;
 import java.util.Arrays;
@@ -371,5 +372,54 @@ class MemberRepositoryTest {
 
     }
 
+    /**
+     * Projections
+     * : 엔티티 대신에 DTO를 편리하게 조회할 때 사용
+     */
+    @Test
+    public void projections() {
+        // given
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // Closed Projections -> 프로퍼티 형식(getter)의 인터페이스를 제공하면, 구현체는 스프링 데이터 jpa 가 제공
+        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("m1");
+
+
+        for (UsernameOnly usernameOnly : result) {
+            System.out.println("usernameOnly = " + usernameOnly.getUsername());
+        }
+
+        // 클래스 기반 Projections - 생성자의 파라미터 이름으로 매칭
+        List<UsernameOnlyDto> result2 = memberRepository.findProjectionsDtoByUsername("m1");
+
+        for (UsernameOnlyDto usernameOnlyDto : result2) {
+            System.out.println("usernameOnlyDto.getUsername() = " + usernameOnlyDto.getUsername());
+        }
+
+        // 동적 Projections - Generic type을 주어 동적으로 프로젝션 데이터 변경 가능
+        List<UsernameOnlyDto> result3 = memberRepository.findProjectionsDtoByUsername("m1", UsernameOnlyDto.class);
+
+        for (UsernameOnlyDto usernameOnlyDto : result3) {
+            System.out.println("usernameOnlyDto = " + usernameOnlyDto.getUsername());
+        }
+
+        // 중첩 구조 처리
+        List<NestedClosedProjections> result4 = memberRepository.findProjectionsDtoByUsername("m1", NestedClosedProjections.class);
+
+        for (NestedClosedProjections nestedClosedProjections : result4) {
+            System.out.println("nestedClosedProjections = " + nestedClosedProjections.getUsername());
+        }
+
+
+    }
 
 }
